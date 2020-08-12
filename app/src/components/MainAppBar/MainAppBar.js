@@ -21,7 +21,7 @@ const MainAppBar = () => {
                 <MainAppBarDrawer/>
                 <img src={mainLogo} alt="Main Logo" height={"18px"}/>
                 <div className={classes.root}/>
-                <Button color="inherit">Hi, LoginName</Button>
+                <Button color="inherit">Welcome</Button>
             </Toolbar>
         </AppBar>
     )

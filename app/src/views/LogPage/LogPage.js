@@ -1,10 +1,11 @@
-import React from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {DatePicker, MainAppBar, Page} from "components";
 import {Grid} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/core/styles";
 import LogTable from "../../tables/LogTable";
 import {DashboardChart} from "../../charts";
+import {useHistory} from "react-router-dom"
 
 const useStyles = makeStyles((theme) => ({
     mainContainer: {
@@ -47,6 +48,62 @@ const useStyles = makeStyles((theme) => ({
 
 const LogPage = () => {
     const classes = useStyles();
+    const history = useHistory();
+
+    const [selectedDate, setSelectedDate] = React.useState(new Date());
+    const [logData, setLogData] = React.useState([]);
+    const [vData, setVData] = useState([])
+    const [cData, setCData] = useState([])
+    useEffect( () => {
+        let unmounted = false;
+
+        if(!unmounted) {
+            fetch("http://api.arusnetral.my.id/log/filter/date/"+ selectedDate.getFullYear() + "-" + (selectedDate.getMonth()+1) + "-" + selectedDate.getDate() +"/hourly", {
+                method: "GET"
+            }).then(res => {
+                if (res.status === 200) {
+                    return res.json();
+                }
+            }).then(resJSON => {
+                setLogData(resJSON["data"]);
+                resJSON["data"].length > 0 ? buildChartData(resJSON["data"]) : buildChartData([{
+                    Hour: 1,
+                    AVGV: 0,
+                    AVGC: 0
+                }]);
+            })
+        }
+        return () => {unmounted = true}
+    }, [selectedDate])
+
+    useMemo(() => {
+        const ld = localStorage.getItem("AUTH");
+        if(ld === null || ld === undefined) {
+            history.replace("/login")
+        }
+    }, []);
+
+    const buildChartData = (data) => {
+        let tempVData = [];
+        let tempCData = [];
+        const tempDataLen = 24;
+        let inDataPtr = 0;
+
+        for(let i = 0; i < tempDataLen; i++) {
+            if(data[inDataPtr]["Hour"] === i) {
+                tempVData.push(data[inDataPtr]["AVGV"]);
+                tempCData.push(data[inDataPtr]["AVGC"]);
+                console.log(data.length-1);
+                inDataPtr = inDataPtr < data.length-1 ? inDataPtr + 1 : data.length-1;
+            }else{
+                tempVData.push(0);
+                tempCData.push(0);
+            }
+        }
+
+        setVData(tempVData);
+        setCData(tempCData);
+    }
 
     return (
         <Page title={"Arus Netral"}>
@@ -59,7 +116,7 @@ const LogPage = () => {
                         </Typography>
                     </Grid>
                     <Grid item container md={6} xs={12} justify='flex-end' alignContent="center" alignItems="center">
-                        <DatePicker/>
+                        <DatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
                     </Grid>
                 </Grid>
                 <Grid item container md={12} xs={12} className={classes.titleContainer} spacing={2} direction={"row-reverse"}>
@@ -71,7 +128,7 @@ const LogPage = () => {
                             </Grid>
                             <Grid item md={12} xs={12} className={classes.chartContainer}>
                                 <div className={classes.chart}>
-                                    <DashboardChart color={"#1F90B4"}/>
+                                    <DashboardChart vData={vData} cData={cData} dataType={"v"} color={"#1F90B4"}/>
                                 </div>
                             </Grid>
                         </Grid>
@@ -87,13 +144,13 @@ const LogPage = () => {
                             </Grid>
                             <Grid item md={12} xs={12} className={classes.chartContainer}>
                                 <div className={classes.chart}>
-                                    <DashboardChart color={"#B4AF1F"}/>
+                                    <DashboardChart vData={vData} cData={cData} dataType={"c"} color={"#B4AF1F"}/>
                                 </div>
                             </Grid>
                         </Grid>
                     </Grid>
                     <Grid item md={6} xs={12}>
-                        <LogTable/>
+                        <LogTable data={logData}/>
                     </Grid>
                 </Grid>
             </Grid>

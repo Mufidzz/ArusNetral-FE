@@ -2,7 +2,8 @@ import React, {Fragment} from "react";
 import {Line} from "react-chartjs-2";
 
 const DashboardChart = props => {
-    const {color, ...rest} = props
+    const {color, vData, cData, dataType,...rest} = props
+
 
     const data = {
         labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'],
@@ -23,7 +24,8 @@ const DashboardChart = props => {
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
-                data: ['190', '64', '76', '22', '14', '85', '26', '244', '8', '9', '10', '11', '12', '223', '14', '15', '323', '17', '18', '19', '20', '21', '22', '23'],
+                // data: ['190', '64', '76', '22', '14', '85', '26', '244', '8', '9', '10', '11', '12', '223', '14', '15', '323', '17', '18', '19', '20', '21', '22', '23'],
+                data: dataType === "c" ? cData : vData,
             }
         ]
     }

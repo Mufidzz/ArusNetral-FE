@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -30,22 +30,7 @@ function createData(jam, tegangan, arus) {
     return { jam, tegangan, arus };
 }
 
-const rows = [
-    createData('15:00:09', 220, 6.0),
-    createData('15:00:09', 220, 9.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 3.7),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-    createData('15:00:09', 220, 16.0),
-];
+
 
 const useStyles = makeStyles({
     table: {
@@ -53,8 +38,21 @@ const useStyles = makeStyles({
     },
 });
 
-const LogTable = () => {
+const LogTable = props => {
     const classes = useStyles();
+    const {data} = props;
+    const [rows, setRows] = useState([])
+
+    useEffect(() => {
+        let tempRows = []
+        if(data && data.length > 0) {
+            data.map((data, i) => {
+                tempRows.push(createData(data["Hour"] + ':00 - '+ data["Hour"] + ':59', data["AVGV"], data["AVGC"]));
+            })
+        }
+        setRows(tempRows)
+
+    }, [data])
 
     return (
         <TableContainer component={Paper}>
@@ -62,8 +60,8 @@ const LogTable = () => {
                 <TableHead>
                     <TableRow>
                         <StyledTableCell>Jam</StyledTableCell>
-                        <StyledTableCell align={"center"}>Tegangan (V)</StyledTableCell>
-                        <StyledTableCell align={"center"}>Arus (A)</StyledTableCell>
+                        <StyledTableCell align={"center"}>Tegangan Rata-Rata (V)</StyledTableCell>
+                        <StyledTableCell align={"center"}>Arus Rata-Rata (A)</StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>

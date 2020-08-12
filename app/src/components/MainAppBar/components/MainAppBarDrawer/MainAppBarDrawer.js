@@ -11,7 +11,8 @@ import AvTimerIcon from '@material-ui/icons/AvTimer';
 import HistoryIcon from '@material-ui/icons/History';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Divider from "@material-ui/core/Divider";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
+
 
 const useStyles = makeStyles((theme) => ({
     list: {
@@ -23,26 +24,32 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const drawer = (
-    <List>
-        <ListItem component={Link} button key={"Pembacaan"} to='/'>
-            <ListItemIcon><AvTimerIcon/></ListItemIcon>
-            <ListItemText primary={"Pembacaan"} />
-        </ListItem>
-        <ListItem component={Link} button key={"Logger"} to='/log'>
-            <ListItemIcon><HistoryIcon/></ListItemIcon>
-            <ListItemText primary={"Logger"} />
-        </ListItem>
-        <Divider/>
-        <ListItem component={Link} button key={"Logout"} to='/login'>
-            <ListItemIcon><ExitToAppIcon/></ListItemIcon>
-            <ListItemText primary={"Logout"} />
-        </ListItem>
-    </List>
-);
-
 const MainAppBarDrawer = () => {
     const classes = useStyles();
+    const history = useHistory();
+
+    const handleLogout = () => {
+        localStorage.clear();
+        history.replace("/login");
+    }
+
+    const drawer = (
+        <List>
+            <ListItem component={Link} button key={"Pembacaan"} to='/'>
+                <ListItemIcon><AvTimerIcon/></ListItemIcon>
+                <ListItemText primary={"Pembacaan"} />
+            </ListItem>
+            <ListItem component={Link} button key={"Logger"} to='/log'>
+                <ListItemIcon><HistoryIcon/></ListItemIcon>
+                <ListItemText primary={"Logger"} />
+            </ListItem>
+            <Divider/>
+            <ListItem onClick={handleLogout} button key={"Logout"} to='/login'>
+                <ListItemIcon><ExitToAppIcon/></ListItemIcon>
+                <ListItemText primary={"Logout"} />
+            </ListItem>
+        </List>
+    );
 
     const [drawerOpen, setDrawerOpen] = useState(false)
 

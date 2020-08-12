@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {Page} from "components";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
@@ -7,8 +7,43 @@ import LockIcon from '@material-ui/icons/Lock';
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import InputAdornment from "@material-ui/core/InputAdornment";
+import {useHistory} from "react-router-dom"
 
 const Login = () => {
+    const history = useHistory();
+
+    const [formData, setFormData] = useState({
+        Username : "",
+        Password : ""
+    })
+
+    const handleFormChange = e => {
+        setFormData({
+            ...formData,
+            [e.target.name] : e.target.value
+        })
+    }
+
+    const handleLoginClick = () => {
+        fetch("http://api.arusnetral.my.id/user/"+ formData.Username + "/" + formData.Password, {
+            method: "AUTH"
+        }).then(res => {
+            if (res.status === 200) {
+                return res.json();
+            } else if (res.status === 401) {
+                return null;
+            }
+        }).then(resJSON => {
+            console.log(resJSON)
+            if (resJSON !== null && resJSON !== undefined) {
+                localStorage.setItem("AUTH", resJSON["data"]["Password"]);
+                history.replace("/");
+            } else {
+                alert("Password Salah");
+            }
+        })
+    }
+
     return(
         <Page title={"Arus Netral - Login"}>
             <Grid container justify='center' alignContent="center" alignItems="center" style={{height: "100vh"}}>
@@ -26,6 +61,8 @@ const Login = () => {
                                     <TextField
                                         fullWidth
                                         label="Username"
+                                        name="Username"
+                                        onChange={handleFormChange}
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
@@ -39,6 +76,8 @@ const Login = () => {
                                     <TextField
                                         fullWidth
                                         label="Password"
+                                        name="Password"
+                                        onChange={handleFormChange}
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
@@ -52,7 +91,7 @@ const Login = () => {
 
 
                             <Grid item md={10} xs={10} style={{marginTop: "50px"}}>
-                                <Button fullWidth variant="contained" color={'primary'}>Login</Button>
+                                <Button onClick={handleLoginClick} fullWidth variant="contained" color={'primary'}>Login</Button>
                             </Grid>
                         </Grid>
 

@@ -24,7 +24,6 @@ function App() {
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <Router history={history}>
                       {renderRoutes(routes)}
-
                   </Router>
               </MuiPickersUtilsProvider>
           </ThemeProvider>
